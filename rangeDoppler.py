@@ -370,6 +370,8 @@ class RangeDopplerCompressor:
         # 1 azimuth fft
         print('1/4 performing azimuth fft')
         doppler_range_compressed_matrix = self.azimuth_fft(self.data.data_range_matrix)
+        doppler_range_compressed_matrix.tofile("data/fft.bin")
+
         # dump raw data and free memory
         self.data.dump_rx_data()
         self.data.dump_range_compressed_matrix()
@@ -383,6 +385,8 @@ class RangeDopplerCompressor:
         # 2 rcmc
         print('2/4 performing range cell migration correction')
         doppler_range_compressed_matrix_rcmc = self.rcmc(doppler_range_compressed_matrix)
+        doppler_range_compressed_matrix_rcmc.tofile("data/rcmc.bin")
+
         self.data.set_doppler_range_compressed_matrix_rcmc(doppler_range_compressed_matrix_rcmc)
         # dump data and free memory
         self.data.dump_doppler_range_compressed_matrix()
@@ -396,7 +400,10 @@ class RangeDopplerCompressor:
         print('3/4 performing azimuth filtering')
         print(" -creating azimuth filter matrix")
         self.doppler_axis, self.azimuth_filter_matrix = self.create_azimuth_filter_matrix(linearFMapproximation=False)
+        self.doppler_axis.tofile("data/doppler_axis.bin")
+        self.azimuth_filter_matrix.tofile("data/azimuth_filter_matrix.bin")
         doppler_range_image_matrix = doppler_range_compressed_matrix_rcmc * self.azimuth_filter_matrix
+        doppler_range_image_matrix.tofile("data/filter.bin")
 
         # 3.1 pattern equalization
         if patternequ:
@@ -409,6 +416,7 @@ class RangeDopplerCompressor:
             # apply the window
             doppler_range_image_matrix = doppler_range_image_matrix * doppler_window[:, np.newaxis]
 
+        doppler_range_image_matrix.tofile("data/filtered.bin")
         # dump and free memory
         self.data.dump_doppler_range_compressed_matrix_rcmc()
         del doppler_range_compressed_matrix_rcmc
@@ -422,6 +430,7 @@ class RangeDopplerCompressor:
         # 4 ifft
         print('4/4 performing azimuth ifft')
         outimage = self.azimuth_ifft(doppler_range_image_matrix)
+        outimage.tofile("data/ifft.bin")
         # dump free and set memory
         self.data.set_reconstructed_image(outimage)
         self.data.dump_range_doppler_reconstructed_image()

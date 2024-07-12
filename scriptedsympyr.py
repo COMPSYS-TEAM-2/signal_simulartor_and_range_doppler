@@ -178,11 +178,34 @@ with open('./Simulation_Data/data_dump.pk', 'wb') as handle:
     pk.dump(data, handle)
     handle.close()
 
+import struct
+print('Storing simulation data in binary files...')
+
+# Serialize channel data to JSON
+with open('./data/parameters.bin', 'wb') as f:
+    channel_dict = {}
+    shape = data.data_range_matrix.shape
+    f.write(struct.pack('ll', shape[0], shape[1]))
+    f.write(struct.pack('d', channel.radar.prf))
+    f.write(struct.pack('d', channel.radar.geometry.abs_v))
+    f.write(struct.pack('d', channel.radar.geometry.forward_squint_angle))
+    f.write(struct.pack('d', channel.radar.fc))
+    f.write(struct.pack('d', channel.radar.pulse.rate))
+    print(channel.radar.geometry.S_0[2])
+    f.write(struct.pack('d', channel.radar.geometry.S_0[2])) # Height
+    f.write(struct.pack('d', channel.radar.geometry.side_looking_angle))
+    f.write(struct.pack('d', data.Fs)) # Range
+    f.write(struct.pack('d', doppler_bandwidth))
+
+# Serialize data to BIN
+data.data_range_matrix.tofile('./data/data.bin')
+
 # %%
 # - 4 RANGE DOPPLER COMPRESSION
 # compress the signal imposing a finite doppler bandwidth
 # create a range Doppler instance
 rangedop = RangeDopplerCompressor(channel, data)
+rangedop.get_true_range_axis().tofile('./data/true_range.bin')
 # compress the image
 outimage = rangedop.azimuth_compression(doppler_bandwidth=doppler_bandwidth, patternequ=False)
 
