@@ -200,6 +200,10 @@ with open('./data/parameters.bin', 'wb') as f:
 # Serialize data to BIN
 data.data_range_matrix.tofile('./data/data.bin')
 
+with open('./data/time.bin', 'wb') as f:
+    f.write(data.time.astype(np.float64).tobytes())
+
+
 # %%
 # - 4 RANGE DOPPLER COMPRESSION
 # compress the signal imposing a finite doppler bandwidth

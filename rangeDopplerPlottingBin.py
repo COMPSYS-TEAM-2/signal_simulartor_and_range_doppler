@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
 import numpy as np
+import struct
 from channel import Channel
 
 # %% unpickle the data
@@ -17,12 +18,18 @@ with open('./Simulation_Data/channel_dump.pk', 'rb') as handle:
 with open('./Simulation_Data/data_dump.pk', 'rb') as handle:
     data = pk.load(handle)
     handle.close()
-# load everything from file
 data.load_all()
+
+with open('./data/parameters.bin', 'rb') as f:
+    shape = struct.unpack('ll', f.read(16))  # shape of the data matrix
+# Now you can use 'shape' to read the binary data
+data_matrix = np.fromfile('./data/data_out.bin', dtype=np.complex128)  # Ensure dtype matches what you stored
+data_matrix = data_matrix.reshape(shape)  # Reshape to the correct dimensions
+
+data.data_matrix = data_matrix
 
 # %% axes
 range_ax = data.get_range_axis(channel.c)
-print("Time: ", data.time)
 fast_time_ax = data.get_fast_time_axis()
 
 azimuth_ax = data.get_azimuth_axis(channel.radar.geometry.abs_v)
