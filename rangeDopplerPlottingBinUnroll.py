@@ -23,7 +23,7 @@ data.load_all()
 with open('./data/parameters.bin', 'rb') as f:
     shape = struct.unpack('ll', f.read(16))  # shape of the data matrix
 # Now you can use 'shape' to read the binary data
-data_matrix = np.fromfile('./data/data_out_normal.bin', dtype=np.complex128)  # Ensure dtype matches what you stored
+data_matrix = np.fromfile('./data/data_out_unroll.bin', dtype=np.complex128)  # Ensure dtype matches what you stored
 data_matrix = data_matrix.reshape(shape)  # Reshape to the correct dimensions
 
 data.data_matrix = data_matrix
